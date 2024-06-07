@@ -18,27 +18,70 @@ data = []
 with open(f'{set_id}.json', 'r') as file:
     data = json.load(file)
 
-
-
-modal_dfc = None
+test_card = None
 for card_data in data:
-    if card_data['layout'] == 'modal_dfc':
-        modal_dfc = card_data
+    if card_data['layout'] == 'saga':
+        test_card = card_data
         break
 
 '''
 dict_keys(['normal', 'saga', 'prototype', 'adventure', 'transform', 'modal_dfc'])
 
 '''
-def get_png(card):
-    layout = card['layout']
-    if layout == 'modal_dfc'
 
+def get_frontonly(card):
+
+    # TODO insert download logic
+
+    return card['image_uris']['png']
+
+def get_frontback(card):
+    f = card['card_faces'][0]
+    b = card['card_faces'][1]
+
+    # TODO insert download logic
+
+    return (f['image_uris']['png'], b['image_uris']['png'])
+
+def get_normal(card):
+    return get_frontonly(card)
+
+def get_saga(card):
+    return get_frontonly(card)
+
+def get_prototype(card):
+    return get_frontonly(card)
+
+def get_adventure(card):
+    return get_frontonly(card)
+
+def get_transform(card):
+    return get_frontback(card)
 
 def get_modal_dfc(card):
+    return get_frontback(card)
+
+layout_functions = {
+        'normal': get_normal, 
+        'saga': get_saga, 
+        'prototype': get_prototype, 
+        'adventure': get_adventure, 
+        'transform': get_transform, 
+        'modal_dfc': get_modal_dfc
+}
+
+def get_png(card):
+    card_layout = card['layout']
+    get_func = layout_functions[card_layout]
+
+    return get_func(card)
 
 
-pprint.pprint(modal_dfc)
+for card in data:
+    png = get_png(card)
+
+    break
+
 
 
 
