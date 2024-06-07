@@ -1,30 +1,42 @@
 #!/bin/python3
 
-# 2024.06.07, by @zachleach
+# https://requests.readthedocs.io/en/latest/
+# https://scryfall.com/docs/api/cards/search
+
+# 2024.06.03, by @zachleach
 import requests
 import json
 import pprint
-import os
 import time
+from collections import defaultdict
 
-set_name = "mh3"
-url = f"https://api.scryfall.com/cards/{set_name}"
+expression = "e:mh3 order:set unique:prints"
+url = "https://api.scryfall.com/cards/search"
 
-i = 1; data = []
+data = []
+layouts = defaultdict(list)
+
 while url:
-    response = requests.get(url + f'/{i}')
-    if response.status_code == 404:
+    # make http request for json data
+    response = requests.get(url, params={'q': expression})
+    time.sleep(0.5)
+    if response.status_code != 200:
+        print(f"Error: {response.status_code}")
         break
 
     # extract page of json data and add to a list
     json_data = response.json()
-    data += [json_data]
-    pprint.pprint(data)
+    data += json_data['data']
 
     # get next page of data (if there is one)
-    time.sleep(0.5)
-    i += 1
+    url = json_data.get('next_page')
 
-with open("mh3_522.json", "w") as file:
-    json.dump(data, file, indent=4)
 
+
+
+'''
+for card_data in data:
+    layout = card_data['layout']
+    name = card_data['name']
+    layouts[layout] += [name]
+'''
