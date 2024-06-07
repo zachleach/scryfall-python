@@ -1,26 +1,26 @@
 #!/bin/python3
 
-# https://requests.readthedocs.io/en/latest/
-# https://scryfall.com/docs/api/cards/search
+'''
+Creates a json file (name formatted as '{set_id}.json') containing all cards printed in a given set in the directory this script is run.
 
-# 2024.06.03, by @zachleach
+Usage: ./get_json set_id
+'''
+
+# 2024.06.07, by @zachleach
 import requests
 import json
-import pprint
 import time
-from collections import defaultdict
-import os
 import sys
 
 set_id = sys.argv[1] if len(sys.argv) > 1 else None
-expression = f"e:{set_id} order:set unique:prints"
+search_expression = f"e:{set_id} order:set unique:prints"
 url = "https://api.scryfall.com/cards/search"
 
 data = []
 
 while url:
     # make http request for json data
-    response = requests.get(url, params={'q': expression})
+    response = requests.get(url, params={'q': search_expression})
     time.sleep(0.5)
     if response.status_code != 200:
         print(f"Error: {response.status_code}")
@@ -33,15 +33,5 @@ while url:
     # get next page of data (if there is one)
     url = json_data.get('next_page')
 
-'''
 with open(f'{set_id}.json', 'w') as file:
-    json.dump(file)
-
-
-with open(f'{set_id}.json', 'r') as file:
-    data = json.load(file)
-'''
-
-
-
-pprint.pprint(data)
+    json.dump(data, file, indent=4)
