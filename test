@@ -4,44 +4,42 @@
 # https://scryfall.com/docs/api/cards/search
 
 # 2024.06.03, by @zachleach
-import requests
 import json
 import pprint
-import time
-from collections import defaultdict
 import os
 import sys
 
+
 set_id = sys.argv[1] if len(sys.argv) > 1 else None
-expression = f"e:{set_id} order:set unique:prints"
-url = "https://api.scryfall.com/cards/search"
+set_id = 'mh3'
 
 data = []
 
-while url:
-    # make http request for json data
-    response = requests.get(url, params={'q': expression})
-    time.sleep(0.5)
-    if response.status_code != 200:
-        print(f"Error: {response.status_code}")
-        break
-
-    # extract page of json data and add to a list
-    json_data = response.json()
-    data += json_data['data']
-
-    # get next page of data (if there is one)
-    url = json_data.get('next_page')
-
-'''
-with open(f'{set_id}.json', 'w') as file:
-    json.dump(file)
-
-
 with open(f'{set_id}.json', 'r') as file:
     data = json.load(file)
+
+
+
+modal_dfc = None
+for card_data in data:
+    if card_data['layout'] == 'modal_dfc':
+        modal_dfc = card_data
+        break
+
 '''
+dict_keys(['normal', 'saga', 'prototype', 'adventure', 'transform', 'modal_dfc'])
+
+'''
+def get_png(card):
+    layout = card['layout']
+    if layout == 'modal_dfc'
+
+
+def get_modal_dfc(card):
+
+
+pprint.pprint(modal_dfc)
 
 
 
-pprint.pprint(data)
+
