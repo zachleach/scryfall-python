@@ -1,0 +1,11 @@
+#!/bin/python3
+
+# 2024.06.07, by @zachleach
+import json 
+import pprint
+
+with open("input1000.json", 'r') as file:
+    data = json.load(file)
+    pprint.pprint(data)
+    #with open("out.json", 'w') as out_file:
+        #json.dump(data, file, indent=4)
