@@ -11,6 +11,7 @@ import requests
 import json
 import time
 import sys
+import pprint
 
 set_id = sys.argv[1] if len(sys.argv) > 1 else None
 search_expression = f"e:{set_id} order:set unique:prints"
@@ -33,5 +34,9 @@ while url:
     # get next page of data (if there is one)
     url = json_data.get('next_page')
 
+'''
 with open(f'{set_id}.json', 'w') as file:
     json.dump(data, file, indent=4)
+'''
+
+pprint.pprint(data)

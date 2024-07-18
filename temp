@@ -2,27 +2,63 @@
 
 # 2024.06.07, by @zachleach
 import json 
-import ijson
 import pprint
 from collections import defaultdict
+import time
+import os
+import sys
+import requests
 
-set_map = defaultdict(list)
+t_start = time.time()
 
-with open("input.json", 'r') as file:
-    json_iterable = ijson.items(file, 'item')
-    card_iterator = (card_obj for card_obj in json_iterable)
-
-    for card_data in card_iterator:
-        set_id = card_data['set']
-        set_map[set_id]
-
-with open("input.json", 'r') as file:
-    json_iterable = ijson.items(file, 'item')
-    card_list = [card_obj for card_obj in json_iterable]
-
-    pprint.pprint(card_list)
+#   HARDCODE PATH TO SET JSON FILE
+home_dir = os.path.expanduser("~")
+sets_json_path = f'{home_dir}/mtg/scryfall/data'
+os.makedirs(sets_json_path, exist_ok=True)
 
 
+#   CHECK IF SET DOWNLOADED LOCALLY
+'''
+_set = [s for s in sys.argv if "set:" in s]
+if len(_set) != 1: exit(1)
+_set = _set[0]
+_set = _set.split(":", 1)[1]
+'''
+_set = 'otj'
+
+#   DOWNLOAD SET LOCALLY IF IT DOESN'T EXIST
+set_path = f"{sets_json_path}/{_set}.json"
+if not os.path.exists(set_path):
+    expression = f"e:{_set} order:set -t:'basic land'"
+    url = "https://api.scryfall.com/cards/search"
+    data = []
+    while url:
+        # make http request for json data
+        response = requests.get(url, params={'q': expression})
+        time.sleep(0.5)
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}")
+            break
+
+        # extract page of json data and add to a list
+        json_data = response.json()
+        data += json_data['data']
+
+        # get next page of data (if there is one)
+        url = json_data.get('next_page') 
+    
+    with open(set_path, 'w') as file:
+        json.dump(data, file, indent=4)
 
 
+#   LOAD SET JSON FILE
+data = None
+with open(set_path, 'r') as file:
+    data = json.load(file)
+
+
+white = [card for card in data if 'W' in card['colors']]
+
+for card in white:
+    print(card['name'])
 
