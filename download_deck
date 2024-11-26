@@ -1,0 +1,92 @@
+#!/bin/python3
+
+# 2024.11.25, by @zachleach
+
+
+deck_list = '''
+4 birds of paradise (sld) 1675 
+'''
+
+
+
+
+
+import requests
+import json
+import time
+import sys
+import pprint
+from collections import defaultdict
+import os
+
+def parse(line):
+    sp = line.split()
+    idx = -1
+    for i, token in enumerate(sp):
+        if (token[0] == '('): 
+            idx = i
+            break
+    return (int(sp[0]), sp[i].strip('()'), sp[i + 1])
+
+def get_json(query):
+    response = requests.get("https://api.scryfall.com/cards/search", params={'q': query})
+    if response.status_code != 200:
+        print(f"Error: {response.status_code}")
+        return None
+    
+    return response.json()['data'][0]
+
+def download_cardfaces(card_obj, amt, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    filename = f"{card_obj['set']}-{card_obj['collector_number']}"
+    dst = f'{output_dir}/{filename}'
+
+    # multi-faced
+    if ('card_faces' in card_obj):
+        # front face
+        if ('image_uris' in card_obj['card_faces'][0]):
+            print(f"Downloading image: {card_obj['card_faces'][0]['name']}")
+            response = requests.get(card_obj['card_faces'][0]['image_uris']['png'])
+            if response.status_code == 200:
+                for i in range(amt):
+                    with open(f"{dst}f_{i}.png", 'wb') as f:
+                        f.write(response.content)
+        
+        # back face
+        if ('image_uris' in card_obj['card_faces'][1]):
+            print(f"Downloading image: {card_obj['card_faces'][1]['name']}")
+            response = requests.get(card_obj['card_faces'][1]['image_uris']['png'])
+            if response.status_code == 200:
+                for i in range(amt):
+                    with open(f"{dst}b_{i}.png", 'wb') as f:
+                        f.write(response.content)
+
+    # single face
+    elif ('image_uris' in card_obj):
+        print(f"Downloading image: {card_obj['name']}")
+        response = requests.get(card_obj['image_uris']['png'])
+        if response.status_code == 200:
+            for i in range(amt):
+                with open(f"{dst}_{i}.png", 'wb') as f:
+                    f.write(response.content)
+
+def main():
+    for line in deck_list.strip().splitlines():
+        info = parse(line)
+
+        # make http request for json data
+        start_time = time.perf_counter()
+        card = get_json(f'set:{info[1]} cn:{info[2]}')
+        end_time = time.perf_counter()
+        elapsed = (end_time - start_time)
+        time.sleep(max(0, 0.1 - elapsed))
+
+        # download card png
+        start_time = time.perf_counter()
+        download_cardfaces(card, info[0], 'deck')
+        end_time = time.perf_counter()
+        elapsed = end_time - start_time
+        time.sleep(max(0, 0.1 - elapsed))
+
+if __name__ == '__main__':
+    main()
