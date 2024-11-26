@@ -1,0 +1,71 @@
+#!/bin/python3
+
+# 2024.07.21, by @zachleach
+import json
+import pprint
+
+json_data = []
+with open('fdn.json', 'r') as file:
+    json_data = json.load(file)
+    json_data = [card for card in json_data if card['booster']]
+
+def contains_color(card, color):
+    return color in card['colors']
+
+def is_exactly_color(card, colors):
+    return set(card['colors']) == set(list(colors))
+
+creatures, noncreatures = [], []
+for card in json_data:
+    if 'Creature' in card['type_line']:
+        creatures += [card]
+    else:
+        noncreatures += [card]
+
+colors = [ "W", "U", "B", "R", "G" ]
+creature_color_map, noncreature_color_map = {}, {}
+for color in colors:
+    creature_color_map[color] = [card for card in creatures if color in card['colors']]
+for color in colors:
+    noncreature_color_map[color] = [card for card in noncreatures if color in card['colors']]
+
+rarities = ['common', 'uncommon', 'rare', 'mythic']
+creature_color_rarity_map, noncreature_color_rarity_map = {}, {}
+for color in colors:
+    rarity_map = {}
+    for rarity in rarities:
+        rarity_map[rarity] = [card for card in creature_color_map[color] if card['rarity'] == rarity]
+    creature_color_rarity_map[color] = rarity_map
+for color in colors:
+    rarity_map = {}
+    for rarity in rarities:
+        rarity_map[rarity] = [card for card in noncreature_color_map[color] if card['rarity'] == rarity]
+    noncreature_color_rarity_map[color] = rarity_map
+
+
+import os
+os.makedirs('creatures', exist_ok=True)
+for color, rarity_map in creature_color_rarity_map.items():
+    print(color)
+    for rarity, card_list in rarity_map.items():
+        cards_sorted_by_cmc = sorted(card_list, key=lambda card: card['cmc'])
+        names = [card['name'] for card in cards_sorted_by_cmc]
+        for name in names:
+            print(f"{name}")
+        print("")
+    print("")
+
+os.makedirs('non-creatures', exist_ok=True)
+for color, rarity_map in noncreature_color_rarity_map.items():
+    print(color)
+    for rarity, card_list in rarity_map.items():
+        cards_sorted_by_cmc = sorted(card_list, key=lambda card: card['cmc'])
+        names = [card['name'] for card in cards_sorted_by_cmc]
+        for name in names:
+            print(f"{name}")
+        print("")
+    print("")
+
+
+
+
