@@ -2,7 +2,6 @@
 
 '''
 Creates a json file (name formatted as '{set_id}.json') containing all cards printed in a given set in the directory this script is run.
-
 Usage: ./get_json set_id
 '''
 
@@ -13,8 +12,8 @@ import time
 import sys
 import pprint
 
-set_id = sys.argv[1] if len(sys.argv) > 1 else None
-search_expression = f"e:{set_id} order:set unique:prints"
+outfile_name = sys.argv[1] if len(sys.argv) > 1 else None
+search_expression = "e: order:set unique:prints"
 url = "https://api.scryfall.com/cards/search"
 
 data = []
@@ -22,7 +21,7 @@ data = []
 while url:
     # make http request for json data
     response = requests.get(url, params={'q': search_expression})
-    time.sleep(0.5)
+    time.sleep(0.1)
     if response.status_code != 200:
         print(f"Error: {response.status_code}")
         break
@@ -34,9 +33,7 @@ while url:
     # get next page of data (if there is one)
     url = json_data.get('next_page')
 
-'''
-with open(f'{set_id}.json', 'w') as file:
+with open(f'{outfile_name}.json', 'w') as file:
     json.dump(data, file, indent=4)
-'''
 
 pprint.pprint(data)

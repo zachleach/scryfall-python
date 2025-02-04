@@ -4,10 +4,23 @@
 
 
 deck_list = '''
-4 birds of paradise (sld) 1675 
+3 Brass's Bounty (PFDN) 190
+4 Burst Lightning (FDN) 192
+4 Flick a Coin (WOE) 128
+4 Ill-Timed Explosion (MKM) 416
+3 Into the Flood Maw (BLB) 52
+4 Island (DFT) 513 *F*
+4 Mountain (DFT) 515 *F*
+4 Opt (STA) 82
+4 Seize the Spoils (GN3) 86
+4 Shivan Reef (DMU) 380
+4 Shock (STA) 107
+2 Sleight of Hand (SLP) 25
+4 Spirebluff Canal (OTJ) 304
+4 Temple of Epiphany (BRC) 207
+4 Thousand-Year Storm (2X2) 390
+4 Thundering Falls (MKM) 331
 '''
-
-
 
 
 
@@ -76,7 +89,7 @@ def main():
 
         # make http request for json data
         start_time = time.perf_counter()
-        card = get_json(f'set:{info[1]} cn:{info[2]}')
+        card = get_json(f'set:{info[1]} cn:{info[2]} game:paper')
         end_time = time.perf_counter()
         elapsed = (end_time - start_time)
         time.sleep(max(0, 0.1 - elapsed))
